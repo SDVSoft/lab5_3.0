@@ -2,55 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8b367e0a-12ad-464f-ac51-babfc55942f5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../lab3/.idea/artifacts/lab3_jar.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Applicable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/BalticHerring.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Door.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Drill.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Food.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Helicopter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/HoledDoor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Human.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/HumanWithPropeller.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Item.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/ItemContainer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Location.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/LootBag.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/META-INF/MANIFEST.MF" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Pockets.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/PossibleToDrill.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/PostBox.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Postcard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Sex.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Wall.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/Writing.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/iItemContainer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../lab3/src/iWriting.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lab4.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Archen.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Archen.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Archeops.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Archeops.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Chandelure.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Chandelure.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Crunch.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Crunch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Ember.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Ember.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/EnergyBall.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/EnergyBall.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Facade.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Facade.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/FireBlast.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/FireBlast.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/FocusBlast.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/FocusBlast.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Lampent.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Lampent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Litwick.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Litwick.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Rest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Rest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/RockSlide.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/RockSlide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/ShadowBall.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/ShadowBall.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Smog.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Smog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Swagger.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Swagger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/TapuBulu.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/TapuBulu.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/Tickle.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/Tickle.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab2/src/test.java" beforeDir="false" afterPath="$PROJECT_DIR$/../lab2/src/test.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/NoSuchItemException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -70,19 +23,99 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Door.java">
           <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="9" selection-start-line="9" selection-end-line="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Test.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="221">
+              <caret line="13" column="29" lean-forward="true" selection-start-line="13" selection-start-column="29" selection-end-line="13" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Item.java">
+          <provider selected="true" editor-type-id="text-editor">
             <state>
-              <caret column="13" selection-start-column="13" selection-end-column="13" />
+              <caret column="21" lean-forward="true" selection-start-column="8" selection-end-column="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Human.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="102">
+              <caret line="69" column="30" selection-start-line="69" selection-start-column="30" selection-end-line="69" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ItemContainer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="1" column="41" lean-forward="true" selection-start-line="1" selection-start-column="41" selection-end-line="1" selection-end-column="56" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/NoSuchItemException.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="3" column="27" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="27" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/iItemContainer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="17" selection-start-column="17" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Location.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="2" column="12" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/Test.java" />
+        <option value="$PROJECT_DIR$/src/Loc.java" />
+        <option value="$PROJECT_DIR$/src/NoSuchItemException.java" />
+      </list>
+    </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-7" />
@@ -118,7 +151,8 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1548769549499" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
@@ -134,6 +168,20 @@
       </list>
     </option>
   </component>
+  <component name="RunManager">
+    <configuration name="Test" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Test" />
+      <module name="lab4" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Test" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -144,15 +192,24 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1548759352926</updated>
-      <workItem from="1548759364967" duration="233000" />
+      <workItem from="1548759364967" duration="5914000" />
     </task>
+    <task id="LOCAL-00001" summary="init lab3">
+      <created>1548759671088</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1548759671088</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="243000" />
+    <option name="totallyTimeSpent" value="5914000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
+    <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Image Layers" />
       <window_info id="Designer" />
@@ -161,6 +218,7 @@
       <window_info id="Favorites" side_tool="true" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24962178" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" />
       <window_info anchor="bottom" id="Version Control" />
@@ -168,7 +226,7 @@
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.22749591" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -188,7 +246,8 @@
     <option name="version" value="1" />
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="LAST_COMMIT_MESSAGE" value="" />
+    <MESSAGE value="init lab3" />
+    <option name="LAST_COMMIT_MESSAGE" value="init lab3" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/Applicable.java">
@@ -198,10 +257,66 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Door.java">
+    <entry file="file://$PROJECT_DIR$/src/Location.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="12" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Loc.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="1" lean-forward="true" selection-start-line="1" selection-start-column="1" selection-end-line="1" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/iItemContainer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state>
-          <caret column="13" selection-start-column="13" selection-end-column="13" />
+          <caret column="17" selection-start-column="17" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ItemContainer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="41" lean-forward="true" selection-start-line="1" selection-start-column="41" selection-end-line="1" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/NoSuchItemException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="27" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Test.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="13" column="29" lean-forward="true" selection-start-line="13" selection-start-column="29" selection-end-line="13" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Item.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="21" lean-forward="true" selection-start-column="8" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Door.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Human.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="69" column="30" selection-start-line="69" selection-start-column="30" selection-end-line="69" selection-end-column="30" />
         </state>
       </provider>
     </entry>
