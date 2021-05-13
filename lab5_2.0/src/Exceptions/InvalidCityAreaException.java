@@ -1,6 +1,8 @@
+package Exceptions;
+
 public class InvalidCityAreaException extends InvalidCityDataException {
     /*
-    Exception --- проверяемое исключение. Ловить обязательно.
+    IllegalArgumentException extends RuntimeException --- непроверяемое исключение. Ловить не обязательно.
      */
 
     public InvalidCityAreaException() {super("Недопустимое значение площади города: площадь города должна быть больше 0.");}

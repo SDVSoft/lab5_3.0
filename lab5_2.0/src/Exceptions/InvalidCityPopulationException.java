@@ -1,6 +1,10 @@
+package Exceptions;
+
+import Exceptions.InvalidCityDataException;
+
 public class InvalidCityPopulationException extends InvalidCityDataException {
     /*
-    Exception --- проверяемое исключение. Ловить обязательно.
+    IllegalArgumentException extends RuntimeException --- непроверяемое исключение. Ловить не обязательно.
      */
 
     public InvalidCityPopulationException() {super("Недопустимое значение населения города: население города должно быть больше 0.");}

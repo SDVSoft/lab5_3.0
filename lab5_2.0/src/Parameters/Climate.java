@@ -1,3 +1,5 @@
+package Parameters;
+
 public enum Climate {
     HUMIDCONTINENTAL,
     MEDITERRANIAN,

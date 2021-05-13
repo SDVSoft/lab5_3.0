@@ -1,3 +1,5 @@
+package Parameters;
+
 public enum StandardOfLiving {
     ULTRA_HIGH,
     MEDIUM,
