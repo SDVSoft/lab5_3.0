@@ -20,6 +20,7 @@ import java.util.Scanner;
 
 public class CityCreator implements CSVToObj<City> {
     public City createFromCSV(CSVRow csvRow) throws ObjectCreationFailedException {
+        //TODO: Exception when arguments in CSVRow are not enough
         String exMessage = "%s. Возможно файл с данными был повреждён или изменён.";
         String brokenData;
         Throwable exCause;

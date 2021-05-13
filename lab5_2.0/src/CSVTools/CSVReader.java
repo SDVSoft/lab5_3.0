@@ -8,7 +8,7 @@ public class CSVReader {
     private Scanner sc;
 
     public CSVReader(Scanner sc) { this.sc = sc; }
-//TODO: Throw Exception if input is ended and row is not completed.
+
     public CSVRow readCSVRow() throws ParseException {
         String str;
         try {

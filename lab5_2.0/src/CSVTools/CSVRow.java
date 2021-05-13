@@ -24,6 +24,7 @@ public class CSVRow {
     }
 
     public CSVRow(String csvRow) {
+        //TODO: Exception when incorrectly placed quotes
         this.csvRow = csvRow;
         LinkedList<String> valuesQueue = new LinkedList<>();
         String value;
