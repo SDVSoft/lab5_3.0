@@ -15,14 +15,15 @@ public class CSVRow {
     public CSVRow(String[] values) {
         this.values = values;
         size = values.length;
-        csvRow = "";
+        StringBuilder str = new StringBuilder();
         for (String value : values) {
-            if (!csvRow.equals("")) csvRow += ",";
+            if (str.length() != 0) str.append(",");
             value = value.replace("\"", "\"\"");
             if (value.contains("\"") || value.contains(",") || value.contains("\n"))
                 value = "\"" + value + "\"";
-            csvRow += value;
+            str.append(value);
         }
+        csvRow = str.toString();
     }
 
     public CSVRow(String csvRow) throws InvalidQuoteSequenceException {
