@@ -1,5 +1,7 @@
 package CSVTools;
 
+import Exceptions.InvalidQuoteSequenceException;
+
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -23,22 +25,28 @@ public class CSVRow {
         }
     }
 
-    public CSVRow(String csvRow) {
-        //TODO: Exception when incorrectly placed quotes
+    public CSVRow(String csvRow) throws InvalidQuoteSequenceException {
+        //Added: Exception when incorrectly placed quotes
         this.csvRow = csvRow;
         LinkedList<String> valuesQueue = new LinkedList<>();
         String value;
         boolean quotes = false, quoted = false;
-        int valueBeginIndex = 0, valueEndIndex = 0;
+        int valueBeginIndex = 0, valueEndIndex;
         csvRow += ",";
         for (int i = 0; i < csvRow.length(); i++) {
             if (quotes) {
                 if (csvRow.charAt(i) == '\"') quotes = false;
-            }
-            else if (csvRow.charAt(i) == '\"') quotes = quoted = true;
-            else if (csvRow.charAt(i) == ',') {
+            } else if (csvRow.charAt(i) == '\"') {
+                if (i == 0 || csvRow.charAt(i - 1) == ',' || quoted)
+                    quotes = quoted = true;
+                else throw new InvalidQuoteSequenceException("Невозможно корректно обработать данные: " +
+                        "CSV-поле, содержащее кавычки, не заключено в кавычки.", i);
+            } else if (csvRow.charAt(i) == ',') {
                 valueEndIndex = i;
                 if (quoted) {
+                    if (csvRow.charAt(i - 1) != '"')
+                        throw new InvalidQuoteSequenceException("Невозможно корректно обработать данные: " +
+                                "CSV-поле, содержащее кавычки, не заключено в кавычки.", i);
                     valueBeginIndex++;
                     valueEndIndex--;
                 }
@@ -46,7 +54,9 @@ public class CSVRow {
                 valuesQueue.add(value.replace("\"\"", "\""));
                 quoted = false;
                 valueBeginIndex = i + 1;
-            }
+            } else if (quoted)
+                throw new InvalidQuoteSequenceException("Невозможно корректно обработать данные: " +
+                        "символ кавычки в CSV-поле не удвоен.", i - 1);
         }
         size = valuesQueue.size();
         values = new String[size];

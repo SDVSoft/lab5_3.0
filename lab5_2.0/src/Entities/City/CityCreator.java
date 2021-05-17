@@ -20,10 +20,14 @@ import java.util.Scanner;
 
 public class CityCreator implements CSVToObj<City> {
     public City createFromCSV(CSVRow csvRow) throws ObjectCreationFailedException {
-        //TODO: Exception when arguments in CSVRow are not enough
+        //Added: Exception when arguments in CSVRow are not enough
         String exMessage = "%s. Возможно файл с данными был повреждён или изменён.";
         String brokenData;
         Throwable exCause;
+        if (csvRow.getSize() < 12) {
+            exMessage = String.format(exMessage, "Недостаточно параметров для задания города. Требуется параметров: 12, обнаружено: " + csvRow.getSize());
+            throw new ObjectCreationFailedException(exMessage);
+        }
         try{
             String[] cityData = csvRow.getValues();
             long id = Long.valueOf(cityData[0]);
@@ -71,7 +75,7 @@ public class CityCreator implements CSVToObj<City> {
         String row = cr.toString();
         System.out.println(cr);
 
-        CSVReader  csvReader = new CSVReader(new Scanner(new File("Some Cit.txt")));
+        CSVReader  csvReader = new CSVReader(new Scanner(new File("Some City.txt")));
         try {
             CSVRow csvRow = csvReader.readCSVRow();
             CityCreator cityCreator = new CityCreator();
