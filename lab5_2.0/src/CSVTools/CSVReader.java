@@ -10,6 +10,10 @@ public class CSVReader {
     public CSVReader(Scanner sc) { this.sc = sc; }
 
     public CSVRow readCSVRow() throws ParseException {
+        return readCSVRow(sc);
+    }
+
+    public static CSVRow readCSVRow(Scanner sc) throws ParseException {
         StringBuilder str = new StringBuilder();
         try {
             str.append(sc.nextLine());

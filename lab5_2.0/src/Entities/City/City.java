@@ -9,7 +9,7 @@ import Parameters.StandardOfLiving;
 import java.util.Date;
 
 public class City implements Comparable<City> {
-    private Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
+    private final Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; //Поле не может быть null
     private float area; //Значение поля должно быть больше 0
@@ -95,6 +95,23 @@ public class City implements Comparable<City> {
         this.creationDate = creationDate;
     }
 
+    public City(long id, City other) {
+        if (id > 0)
+            this.id = id;
+        else
+            throw new InvalidCityIdException();
+
+        this.name = other.name;
+        this.coordinates = other.coordinates.clone();
+        this.area = other.area;
+        this.population = other.population;
+        this.metersAboveSeaLevel = other.metersAboveSeaLevel;
+        this.climate = other.climate;
+        this.standardOfLiving = other.standardOfLiving;
+        this.governor = other.governor.clone();
+        this.creationDate = (Date) other.creationDate.clone();
+    }
+
     public String toString() {return name;}
 
     public boolean equals(Object obj) {
@@ -168,10 +185,6 @@ public class City implements Comparable<City> {
         return (Date) creationDate.clone();
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -206,6 +219,13 @@ public class City implements Comparable<City> {
 
     public void setGovernor(Human governor) {
         this.governor = governor;
+    }
+
+    public static City getTestCity() {
+        //TODO: remove
+        Coordinates coord = new Coordinates(1, 2);
+        return new City(1, "c1", coord, 1, 1, 1, 1, Climate.HUMIDCONTINENTAL, StandardOfLiving.MEDIUM, new Human(1), new java.util.Date());
+
     }
 
     public static void main(String[] args) throws InvalidCityDataException, InvalidHumanHeightException {

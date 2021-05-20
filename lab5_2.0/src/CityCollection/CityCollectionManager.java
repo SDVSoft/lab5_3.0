@@ -1,11 +1,21 @@
-package CityCollectionManager;
+package CityCollection;
 
+import CSVTools.CSVReader;
+import CSVTools.CSVRow;
 import Entities.City.City;
+import Entities.City.CityCreator;
+import Entities.Human;
+import Exceptions.ObjectCreationFailedException;
+import Parameters.Climate;
+import Parameters.Coordinates;
+import Parameters.StandardOfLiving;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Hashtable;
+import java.rmi.AlreadyBoundException;
+import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Scanner;
 //TODO:При запуске приложения коллекция должна автоматически заполняться значениями из файла.
 //TODO:Имя файла должно передаваться программе с помощью: переменная окружения.
@@ -17,38 +27,35 @@ import java.util.Scanner;
 
 //TODO: Maybe Logger?
 public class CityCollectionManager {
-    private Hashtable<String, City> cityHashtable;
-    private Hashtable<Long, String> idHashtable;
+    private CityBimap cityCollection;
     private java.util.Date initDate;
-    private long nextId;
 
-    CityCollectionManager() {
-        this.cityHashtable = new Hashtable<>();
-        this.idHashtable = new Hashtable<>();
+    public CityCollectionManager() {
+        this.cityCollection = new CityBimap();
         this.initDate = new java.util.Date();
-        this.nextId = 1;
     }
 
-    private void updateNextId() {
-        while (idHashtable.containsKey(nextId)) nextId++;
-    }
-
-    public boolean add(String key, City city) {
-        if (idHashtable.containsKey(city.getId()))
-            return false;
-        if (cityHashtable.containsKey(key))
-            return false;
-        idHashtable.put(city.getId(), key);
-        cityHashtable.put(key, city);
-        if (city.getId() == nextId) updateNextId();
-        return true;
-    }
-
-    public boolean addWithNewId(String key, City city) {
-        if (cityHashtable.containsKey(key))
-            return false;
-        //TODO: continue
-        return true;
+    /**
+     * Clears CityBimap and fills it with Cities from the file.
+     */
+    public int load(String filename) throws FileNotFoundException {
+        int citiesLoaded = 0;
+        Scanner startColSc = new Scanner(new File(filename));
+        cityCollection.clear();
+        try {
+            CityCreator cityCreator = new CityCreator();
+            CSVRow csvRow, cityCSVRow;
+            while (startColSc.hasNext()) {
+                csvRow = CSVReader.readCSVRow(startColSc);
+                cityCSVRow = new CSVRow(Arrays.copyOfRange(csvRow.getValues(), 1, csvRow.getSize()));
+                cityCollection.add(csvRow.getValues()[0], cityCreator.createFromCSV(cityCSVRow));
+                citiesLoaded++;
+            }
+        } catch (ParseException | ObjectCreationFailedException | AlreadyBoundException exception) {
+            System.out.println("При загрузке коллекции возникла ошибка.");
+            System.out.println(exception.getMessage());
+        }
+        return citiesLoaded;
     }
 
     public void work() { work(System.in); }
@@ -71,15 +78,18 @@ public class CityCollectionManager {
                     }
                     break;
                 case "info":
-                    System.out.println("Collection info:\n\tType:\n\t\t" + cityHashtable.getClass().getSimpleName() +
+                    System.out.println("Collection info:\n\tType:\n\t\t" + cityCollection.getClass().getSimpleName() +
                             "<" + String.class.getSimpleName() +
                             ", " + City.class.getSimpleName() +
                             ">\n\tInitialization time:\n\t\t" + initDate +
-                            "\n\tSize:\n\t\t" + cityHashtable.size() + " element" + ((cityHashtable.size() == 1)? "" : "s"));
+                            "\n\tSize:\n\t\t" + cityCollection.size() + " element" + ((cityCollection.size() == 1)? "" : "s"));
                     break;
                 case "show":
-                    System.out.println(cityHashtable);
+                    System.out.println(cityCollection);
                     break;
+                case "load":
+                    //TODO:continue
+                    //TODO:add this command to Command help.txt
                 case "exit":
                     System.exit(0);
 /*
@@ -132,8 +142,29 @@ public class CityCollectionManager {
         }
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws AlreadyBoundException {
         CityCollectionManager ccm = new CityCollectionManager();
-        ccm.work();
+        if (args.length > 0) {
+            try {
+                System.out.println("Загружено городов: " + ccm.load(args[0]) + ".");
+            } catch (FileNotFoundException fnfe) {
+                System.out.println("Не удалось найти указанный файл. " +
+                        "Воспользуйтесь командой load, чтобы загрузить коллекцию.");
+            }
+        }
+        //ccm.work();
+        /*
+        String key0 = ccm.cityCollection.keys().nextElement();
+        Coordinates coord = new Coordinates(1, 2);
+        City c1 = new City(1, "c1", coord, 1, 1, 1, 1, Climate.HUMIDCONTINENTAL, StandardOfLiving.MEDIUM, new Human(1), new java.util.Date());
+        ccm.cityCollection.add("c1", c1);
+        System.out.println(ccm.cityCollection);
+        c1.setGovernor(new Human(228));
+        System.out.println(ccm.cityCollection.get("c1").getGovernor());
+
+
+        for (String key : ccm.cityCollection.keySet())
+            System.out.println(key + ": " + ccm.cityCollection.get(key));
+            */
     }
 }
