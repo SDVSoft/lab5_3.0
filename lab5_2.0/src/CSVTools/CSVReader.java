@@ -1,24 +1,111 @@
 package CSVTools;
 
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.text.ParseException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class CSVReader {
     private Scanner sc;
+    private BufferedInputStream bufferedIS;
+    private Charset charset;
+    private byte[][] lineSeparatorsBytes;
+    private byte[] lfBytes;
+    private static final String[] LINE_SEPARATORS = "\n\r\u2028\u2029\u0085".split("");
+    private String lastLineSeparator;
+
+    public CSVReader(InputStream is) { this(is, Charset.defaultCharset()); }
+
+    public CSVReader(InputStream is, String charsetName) throws UnsupportedCharsetException {
+        this(is, Charset.forName(charsetName));
+    }
+
+    public CSVReader(InputStream is, Charset charset) {
+        this.bufferedIS = new BufferedInputStream(is);
+        this.charset = charset;
+        lineSeparatorsBytes = new byte[LINE_SEPARATORS.length][];
+        for (int i = 0; i < LINE_SEPARATORS.length; i++)
+            lineSeparatorsBytes[i] = LINE_SEPARATORS[i].getBytes(charset);
+        lfBytes = "\n".getBytes(charset);
+    }
 
     public CSVReader(Scanner sc) { this.sc = sc; }
 
-    public CSVRow readCSVRow() throws ParseException {
-        return readCSVRow(sc);
+    public boolean hasNext() {
+        if (sc != null)
+            return sc.hasNext();
+        bufferedIS.mark(1);
+        try {
+            int b = bufferedIS.read();
+            bufferedIS.reset();
+            return b != -1;
+        } catch (IOException ioe) {
+            return false;
+        }
     }
 
-    public static CSVRow readCSVRow(Scanner sc) throws ParseException {
+    private String readLineFromIS() throws IOException {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            int b, prevB;
+            boolean endOfLine = false;
+            while (!endOfLine && (b = bufferedIS.read()) != -1) {
+                for (byte[] bytesOfLineSep : lineSeparatorsBytes) {
+                    if (b == bytesOfLineSep[0]) {
+                        bufferedIS.mark(4);
+                        prevB = b;
+                        endOfLine = true;
+                        for (int i = 1; i < bytesOfLineSep.length && endOfLine; i++) {
+                            if ((b = bufferedIS.read()) != bytesOfLineSep[i])
+                                endOfLine = false;
+                        }
+                        if (endOfLine) {
+                            lastLineSeparator = new String(bytesOfLineSep, charset);
+                            if (lastLineSeparator.equals("\r")) {
+                                boolean crlfLineSep = true;
+                                bufferedIS.mark(4);
+                                for (int i = 0; i < lfBytes.length && crlfLineSep; i++) {
+                                    if ((b = bufferedIS.read()) != lfBytes[i])
+                                        crlfLineSep = false;
+                                }
+                                if (crlfLineSep) lastLineSeparator = "\r\n";
+                                else bufferedIS.reset();
+                            }
+                            break;
+                        } else {
+                            b = prevB;
+                            bufferedIS.reset();
+                        }
+                    }
+                }
+                if (!endOfLine)
+                    out.write(b);
+            }
+            return out.toString(charset.name());
+        }
+    }
+
+    private String readLine() throws IOException, NoSuchElementException {
+        if (sc == null)
+            return readLineFromIS();
+        String result = sc.nextLine();
+        lastLineSeparator = sc.match().group(1);
+        return result;
+    }
+
+    public CSVRow readCSVRow() throws ParseException {
         StringBuilder str = new StringBuilder();
         try {
-            str.append(sc.nextLine());
-        } catch (NoSuchElementException nsee) {
-            throw new ParseException("Ошибка при чтении CSV: Пустая строка.", 0);
+            str.append(readLine());
+        } catch (UnsupportedEncodingException uee) {
+            ParseException pe = new ParseException("Ошибка при чтении CSV: указана неподдерживаемая кодировка.", 0);
+            pe.initCause(uee);
+            throw pe;
+        } catch (IOException | NoSuchElementException e) {
+            ParseException pe = new ParseException("Ошибка при чтении CSV: пустая строка.", 0);
+            pe.initCause(e);
+            throw pe;
         }
         int nSeparators = 0, charsParsed = str.length();
         boolean strIsComplete = false;
@@ -29,14 +116,28 @@ public class CSVReader {
             if (nSeparators % 2 == 0) strIsComplete = true;
             else {
                 try {
-                    addedStr = "\n" + sc.nextLine();
-                } catch (NoSuchElementException nsee) {
-                    throw new ParseException("Ошибка при чтении CSV: не закрытые двойные кавычки.", charsParsed);
+                    if (!hasNext()) throw new NoSuchElementException("No line found");
+                    addedStr = lastLineSeparator + readLine();
+                } catch (IOException | NoSuchElementException e) {
+                    ParseException pe = new ParseException("Ошибка при чтении CSV: незакрытые двойные кавычки.", charsParsed);
+                    pe.initCause(e);
+                    throw pe;
                 }
                 str.append(addedStr);
                 charsParsed += addedStr.length();
             }
         }
         return new CSVRow(str.toString());
+    }
+
+    //TODO: remove
+    private static void stringTest(String s, Charset charset) {
+        int i = 0;
+        for (char c : s.toCharArray()) {
+            System.out.print(i++ + ": " + c + ": ");
+            for (byte b : String.valueOf(c).getBytes(charset))
+                System.out.print(Integer.toString(((int) b) & ((1 << 8) - 1), 2) + " ");
+            System.out.println();
+        }
     }
 }

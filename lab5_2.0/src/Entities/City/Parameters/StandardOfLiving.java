@@ -1,4 +1,4 @@
-package Parameters;
+package Entities.City.Parameters;
 
 public enum StandardOfLiving {
     ULTRA_HIGH,
