@@ -25,17 +25,25 @@ public class CityCollectionManager {
     private CityBijectiveHashtable cityHashtable;
     private java.util.Date initDate;
     private Scanner sc;
+    private Scanner mainSc;
     private String filename;
     private CityCSVConverter cityCSVConverter;
     private Charset charset = StandardCharsets.UTF_8;
+    private boolean quiet;
+    private boolean scriptExecution;
+    private boolean quietScriptOut;
+    private Exception criticalException;
+    private int nonCriticalLoadExceptions = 0;
 
     public CityCollectionManager() { this(new Scanner(System.in)); }
 
     public CityCollectionManager(Scanner sc) {
         this.cityHashtable = new CityBijectiveHashtable();
         this.initDate = new java.util.Date();
-        this.sc = sc;
+        this.mainSc = this.sc = sc;
         this.cityCSVConverter = new CityCSVConverter();
+        this.quiet = false;
+        this.scriptExecution = false;
     }
 
     /**
@@ -43,6 +51,7 @@ public class CityCollectionManager {
      */
     protected int load(String filename) {
         int citiesLoaded = -1;
+        nonCriticalLoadExceptions = 0;
         try(FileInputStream fis = new FileInputStream(filename)) {
             this.filename = filename;
             cityHashtable.clear();
@@ -60,6 +69,7 @@ public class CityCollectionManager {
                     cityHashtable.put(csvRow.getValues()[0], curCity);
                     citiesLoaded++;
                 } catch (ObjectCreationFailedException ocfe) {
+                    nonCriticalLoadExceptions++;
                     System.out.println("Не удалось создать город с ключом " +
                             csvRow.getValues()[0]);
                     System.out.println(ocfe.getMessage());
@@ -67,6 +77,7 @@ public class CityCollectionManager {
                         System.out.println("Cause: " + ocfe.getCause().getMessage());
                     System.out.println();
                 } catch (IllegalArgumentException iae) {
+                    nonCriticalLoadExceptions++;
                     System.out.println("Не удалось добавить в коллекцию город с ключом " +
                             csvRow.getValues()[0] + " (id:" + curCityId + "):");
                     System.out.println(iae.getMessage());
@@ -76,16 +87,22 @@ public class CityCollectionManager {
         } catch (ParseException pe) {
             System.out.println("Не удаётся прочитать файл в формате CSV.");
             System.out.println(pe.getMessage());
+            criticalException = pe;
         } catch (FileNotFoundException fnfe) {
             System.out.print("Ошибка при открытии файла ");
             System.out.println(fnfe.getMessage());
-            //TODO: Пополучать разные исключения после иземения ридера
+            criticalException = fnfe;
         } catch (IOException ioe) {
             System.out.println("При чтении указанного файла возникла " +
                     "непредвиденная ошибка.");
             System.out.println(ioe.getMessage());
+            criticalException = ioe;
         }
-        System.out.println("Загружено городов: " + citiesLoaded + ".");
+        String resultMsg = "Загружено городов: " + citiesLoaded + ".";
+        if (nonCriticalLoadExceptions > 0)
+            System.out.println(resultMsg);
+        else
+            quietPrintln(resultMsg);
         return citiesLoaded;
     }
 
@@ -96,7 +113,6 @@ public class CityCollectionManager {
     }
 
     protected void save(String filename) {
-        //TODO: test with permissions
         int citiesSaved = 0;
         try (OutputStreamWriter outStreamWriter = new OutputStreamWriter(new FileOutputStream(filename), charset)){
             this.filename = filename;
@@ -114,16 +130,25 @@ public class CityCollectionManager {
                 outStreamWriter.write(csvRowStr + System.lineSeparator());
                 citiesSaved++;
             }
-            System.out.println("Коллекция успешно сохранена в файл " + filename);
+            quietPrintln("Коллекция успешно сохранена в файл " + filename);
         } catch (FileNotFoundException fnfe) {
             System.out.print("Ошибка при записи в файл ");
             System.out.println(fnfe.getMessage());
+            criticalException = fnfe;
         } catch (IOException ioe) {
             System.out.println("При записи файла " + filename + " возникла " +
                     "непредвиденная ошибка.");
             System.out.println(ioe.getMessage());
+            criticalException = ioe;
         }
-        System.out.println("Записано городов: " + citiesSaved);
+        quietPrintln("Записано городов: " + citiesSaved);
+    }
+
+    private String ObjectsToStr(Object[] objs) {
+        String[] strEnumValuesArray = new String[objs.length];
+        for (int i = 0; i < objs.length; i++)
+            strEnumValuesArray[i] = objs[i].toString();
+        return String.join(", ", strEnumValuesArray);
     }
 
     protected City inputElement() {
@@ -133,83 +158,115 @@ public class CityCollectionManager {
     protected City inputElement(City city) {
         String curLine;
         String name = null;
+        String exceptionMsg = null;
         while (name == null) {
-            System.out.println("Введите название города:");
+            quietPrintln("Введите название города:");
             name = sc.nextLine();
             if (name.equals("")) {
                 name = null;
-                System.out.println("Недопустимое имя города: имя города не может быть пустой строкой.");
+                exceptionMsg = "Недопустимое имя города: имя города не может быть пустой строкой.";
+                System.out.println(exceptionMsg);
+                if (scriptExecution) {
+                    criticalException = new IllegalArgumentException(exceptionMsg);
+                    return null;
+                }
             }
         }
         long coordX = 0;
         boolean correctInput = false;
         while (!correctInput) {
-            System.out.println("Введите координату центра города по x (long):");
+            quietPrintln("Введите координату центра города по x (long):");
             if (sc.hasNextLong()) {
                 coordX = sc.nextLong();
                 sc.nextLine();
                 correctInput = true;
             } else {
                 while (sc.nextLine().replaceAll(" ", "").equals("")) {}
-                System.out.println("Не удалось определить координату по x.");
-                System.out.println("Координата по x должна быть задана числом типа long.");
+                exceptionMsg = "Не удалось определить координату по x. " +
+                               "Координата по x должна быть задана числом типа long.";
+                System.out.println(exceptionMsg);
+                if (scriptExecution) {
+                    criticalException = new IllegalArgumentException(exceptionMsg);
+                    return null;
+                }
             }
         }
         double coordY = 0;
         correctInput = false;
         while (!correctInput) {
-            System.out.println("Введите координату центра города по y (double):");
+            quietPrintln("Введите координату центра города по y (double):");
             if (sc.hasNextDouble()) {
                 coordY = sc.nextDouble();
                 sc.nextLine();
                 correctInput = true;
             } else {
                 while (sc.nextLine().replaceAll(" ", "").equals("")) {}
-                System.out.println("Не удалось определить координату по y.");
-                System.out.println("Координата по y должна быть задана числом типа double.");
+                exceptionMsg = "Не удалось определить координату по y. " +
+                               "Координата по y должна быть задана числом типа double.";
+                System.out.println(exceptionMsg);
+                if (scriptExecution) {
+                    criticalException = new IllegalArgumentException(exceptionMsg);
+                    return null;
+                }
             }
         }
         Coordinates coordinates = new Coordinates(coordX, coordY);
         float area = 0;
         correctInput = false;
+        exceptionMsg = null;
         while (!correctInput) {
-            System.out.println("Введите площадь города (float):");
+            quietPrintln("Введите площадь города (float):");
             if (sc.hasNextFloat()) {
                 area = sc.nextFloat();
                 sc.nextLine();
                 if (area > 0)
                     correctInput = true;
                 else
-                    System.out.println("Недопустимое значение площади города: площадь города должна быть больше 0.");
+                    exceptionMsg = "Недопустимое значение площади города: площадь города должна быть больше 0.";
             } else {
                 while (sc.nextLine().replaceAll(" ", "").equals("")) {}
-                System.out.println("Не удалось определить площадь города.");
-                System.out.println("Площадь города должна быть задана числом типа float.");
+                exceptionMsg = "Не удалось определить площадь города.\n" +
+                               "Площадь города должна быть задана числом типа float.";
+            }
+            if (!correctInput) {
+                System.out.println(exceptionMsg);
+                if (scriptExecution) {
+                    criticalException = new IllegalArgumentException(exceptionMsg);
+                    return null;
+                }
             }
         }
         int population = 0;
         correctInput = false;
+        exceptionMsg = null;
         while (!correctInput) {
-            System.out.println("Введите население города (int):");
+            quietPrintln("Введите население города (int):");
             if (sc.hasNextInt()) {
                 population = sc.nextInt();
                 sc.nextLine();
                 if (population > 0)
                     correctInput = true;
                 else
-                    System.out.println("Недопустимое значение населения города: население города должно быть больше 0.");
+                    exceptionMsg = "Недопустимое значение населения города: население города должно быть больше 0.";
             } else {
                 while (sc.nextLine().replaceAll(" ", "").equals("")) {}
-                System.out.println("Не удалось определить население города.");
-                System.out.println("Население города должно быть задано числом типа int.");
+                exceptionMsg = "Не удалось определить население города.\n" +
+                               "Население города должно быть задано числом типа int.";
+            }
+            if (!correctInput) {
+                System.out.println(exceptionMsg);
+                if (scriptExecution) {
+                    criticalException = new IllegalArgumentException(exceptionMsg);
+                    return null;
+                }
             }
         }
         Float metersAboveSeaLevel = null;
         correctInput = false;
         while (!correctInput) {
-            System.out.println("Следующий параметр можно не указывать, для этого оставьте " +
+            quietPrintln("Следующий параметр можно не указывать, для этого оставьте " +
                     "строку пустой (без пробельных символов) и нажмите Enter.");
-            System.out.println("Введите высоту города над уровнем моря (float):");
+            quietPrintln("Введите высоту города над уровнем моря (float):");
             curLine = sc.nextLine();
             if (curLine.equals("")) correctInput = true;
             else {
@@ -217,17 +274,22 @@ public class CityCollectionManager {
                     metersAboveSeaLevel = Float.valueOf(curLine.trim().split(" ")[0]);
                     correctInput = true;
                 } catch (NumberFormatException nfe) {
-                    System.out.println("Не удалось определить высоту города над уровнем моря.");
-                    System.out.println("Высота города над уровнем моря должна быть задана числом типа float.");
+                    exceptionMsg = "Не удалось определить высоту города над уровнем моря." +
+                                   "Высота города над уровнем моря должна быть задана числом типа float.";
+                    System.out.println(exceptionMsg);
+                    if (scriptExecution) {
+                        criticalException = new IllegalArgumentException(exceptionMsg);
+                        return null;
+                    }
                 }
             }
         }
         Integer agglomeration = null;
         correctInput = false;
         while (!correctInput) {
-            System.out.println("Следующий параметр можно не указывать, для этого оставьте " +
+            quietPrintln("Следующий параметр можно не указывать, для этого оставьте " +
                     "строку пустой (без пробельных символов) и нажмите Enter.");
-            System.out.println("Введите размер городской агломерации (int):");
+            quietPrintln("Введите размер городской агломерации (int):");
             curLine = sc.nextLine();
             if (curLine.equals("")) correctInput = true;
             else {
@@ -235,52 +297,60 @@ public class CityCollectionManager {
                     agglomeration = Integer.valueOf(curLine.trim().split(" ")[0]);
                     correctInput = true;
                 } catch (NumberFormatException nfe) {
-                    System.out.println("Не удалось определить размер городской агломерации.");
-                    System.out.println("Размер городской агломерации должен быть задан числом типа int.");
+                    exceptionMsg = "Не удалось определить размер городской агломерации." +
+                                   "Размер городской агломерации должен быть задан числом типа int.";
+                    System.out.println(exceptionMsg);
+                    if (scriptExecution) {
+                        criticalException = new IllegalArgumentException(exceptionMsg);
+                        return null;
+                    }
                 }
             }
         }
         Climate climate = null;
         correctInput = false;
-        Climate[] climateValues = Climate.values();
-        String[] strClimateValuesArray = new String[climateValues.length];
-        for (int i = 0; i < climateValues.length; i++)
-            strClimateValuesArray[i] = climateValues[i].toString();
-        String strClimateValues = String.join(", ", strClimateValuesArray);
+        String strClimateValues = ObjectsToStr(Climate.values());
         while (!correctInput) {
-            System.out.println("Введите тип климата (Доступные варианты: " +
+            quietPrintln("Введите тип климата (Доступные варианты: " +
                              strClimateValues + "):");
             curLine = sc.nextLine().toUpperCase();
             try {
                 climate = Climate.valueOf(curLine.trim().split(" ")[0]);
                 correctInput = true;
             } catch (IllegalArgumentException iae) {
-                System.out.println("Не удалось определить тип климата.");
+                exceptionMsg = "Не удалось определить тип климата.\n" + iae.getMessage();
+                System.out.println(exceptionMsg);
+                if (scriptExecution) {
+                    criticalException = new IllegalArgumentException(exceptionMsg);
+                    return null;
+                }
             }
         }
         StandardOfLiving standardOfLiving = null;
         correctInput = false;
-        StandardOfLiving[] standardOfLivingValues = StandardOfLiving.values();
-        String[] strStandardOfLivingArray = new String[standardOfLivingValues.length];
-        for (int i = 0; i < standardOfLivingValues.length; i++)
-            strStandardOfLivingArray[i] = standardOfLivingValues[i].toString();
-        String strStandardOfLivingValues = String.join(", ", strStandardOfLivingArray);
+        String strStandardOfLivingValues = ObjectsToStr(StandardOfLiving.values());
         while (!correctInput) {
-            System.out.println("Введите уровень жизни населения (Доступные варианты: " +
+            quietPrintln("Введите уровень жизни населения (Доступные варианты: " +
                     strStandardOfLivingValues + "):");
             curLine = sc.nextLine().toUpperCase();
             try {
                 standardOfLiving = StandardOfLiving.valueOf(curLine.trim().split(" ")[0]);
                 correctInput = true;
             } catch (IllegalArgumentException iae) {
-                System.out.println("Не удалось определить уровень жизни населения.");
+                exceptionMsg = "Не удалось определить уровень жизни населения.\n" + iae.getMessage();
+                System.out.println(exceptionMsg);
+                if (scriptExecution) {
+                    criticalException = new IllegalArgumentException(exceptionMsg);
+                    return null;
+                }
             }
         }
         double governorHeight = 0;
         Human governor = null;
         correctInput = false;
+        exceptionMsg = null;
         while (!correctInput) {
-            System.out.println("Введите рост губернатора города (double), " +
+            quietPrintln("Введите рост губернатора города (double), " +
                     "если в городе нет губернатора оставьте строку пустой " +
                     "(без пробельных символов) и нажмите Enter:");
             curLine = sc.nextLine();
@@ -292,11 +362,18 @@ public class CityCollectionManager {
                         governor = new Human(governorHeight);
                         correctInput = true;
                     } else
-                        System.out.println("Недопустимое значение человеческого роста: " +
-                                "рост должен быть больше 0.");
+                        exceptionMsg = "Недопустимое значение человеческого роста: " +
+                                "рост должен быть больше 0.";
                 } catch (NumberFormatException nfe) {
-                    System.out.println("Не удалось определить рост губернатора города.");
-                    System.out.println("Человеческий рост должен быть задан числом типа double.");
+                    exceptionMsg = "Не удалось определить рост губернатора города." +
+                            "Человеческий рост должен быть задан числом типа double.";
+                }
+                if (!correctInput) {
+                    System.out.println(exceptionMsg);
+                    if (scriptExecution) {
+                        criticalException = new IllegalArgumentException(exceptionMsg);
+                        return null;
+                    }
                 }
             }
         }
@@ -314,25 +391,59 @@ public class CityCollectionManager {
         return city;
     }
 
+    protected void quietPrintln() { quietPrintln(""); }
+
+    protected void quietPrintln(String message) {
+        if (quiet)
+            return;
+        System.out.println(message);
+    }
+
+    protected void quietPrint(String message) {
+        if (quiet)
+            return;
+        System.out.print(message);
+    }
+
+    protected boolean checkAnswer() {
+        String answer;
+        while (true) {
+            System.out.println("Введите Д, если да;  Н, если нет:");
+            answer = mainSc.nextLine().trim().split(" ")[0].toLowerCase();
+            switch (answer) {
+                case "д":
+                case "да":
+                case "y":
+                case "yes":
+                    return true;
+                case "н":
+                case "нет":
+                case "n":
+                case "no":
+                    return false;
+            }
+        }
+    }
+
     public void work() {
-        String[] command = {};
+        String[] command;
         City city;
         String key;
-        while (true) {
+        while (sc.hasNext()) {
             command = sc.nextLine().split(" ");
             while (command.length < 1)
                 command = sc.nextLine().split(" ");
             command[0] = command[0].toLowerCase();
             switch (command[0]) {
                 case "help":
-                    try{
+                    try {
                         Scanner cmdHelpSc = new Scanner(new File("./Command help.txt"));
-                        while(cmdHelpSc.hasNext()) {
+                        while (cmdHelpSc.hasNext()) {
                             System.out.println(cmdHelpSc.nextLine());
                         }
-                    }
-                    catch (FileNotFoundException e) {
+                    } catch (FileNotFoundException e) {
                         System.out.println("Не найден файл справки по доступным командам.");
+                        System.out.println(e.getMessage());
                     }
                     break;
                 case "info":
@@ -340,7 +451,7 @@ public class CityCollectionManager {
                             "<" + String.class.getSimpleName() +
                             ", " + City.class.getSimpleName() +
                             ">\n\tInitialization time:\n\t\t" + initDate +
-                            "\n\tSize:\n\t\t" + cityHashtable.size() + " element" + ((cityHashtable.size() == 1)? "" : "s"));
+                            "\n\tSize:\n\t\t" + cityHashtable.size() + " element" + ((cityHashtable.size() == 1) ? "" : "s"));
                     break;
                 case "show":
                     System.out.println(cityHashtable);
@@ -349,64 +460,122 @@ public class CityCollectionManager {
                     key = String.join(" ", Arrays.copyOfRange(command, 1, command.length));
                     city = inputElement();
                     cityHashtable.putWithUniqId(key, city);
-                    System.out.println("В коллекцию по ключу " + key + " добавлен город " +
-                                       cityHashtable.get(key).getFullDescription());
+                    quietPrintln("В коллекцию по ключу " + key + " добавлен город " +
+                            cityHashtable.get(key).getFullDescription());
                     break;
                 case "update":
                     if (command.length > 1) {
                         try {
                             long id = Long.valueOf(command[1]);
                             key = cityHashtable.getKeyForId(id);
-                            if (key == null)
-                                System.out.println("В коллекции нет города с заданным id.");
+                            if (key == null) {
+                                String exceptionMsg = "В коллекции нет города с id=" + id;
+                                System.out.println(exceptionMsg);
+                                criticalException = new NullPointerException(exceptionMsg);
+                            }
                             else {
                                 city = cityHashtable.get(key);
                                 inputElement(city);
-                                System.out.println("Данные города " + city + " обновлены.");
-                                System.out.println("Ключ: " + key +
+                                quietPrintln("Данные города " + city + " обновлены.");
+                                quietPrintln("Ключ: " + key +
                                         "\nНовые данные города " +
                                         cityHashtable.get(key).getFullDescription());
                             }
                         } catch (NumberFormatException nfe) {
                             System.out.println("Не удалось определить id (long).");
                             System.out.println(nfe.getMessage());
+                            criticalException = nfe;
                         }
-                    } else
+                    } else {
                         System.out.println("Команда update принимает обязательный аргумент id (long).");
+                        criticalException = new NullPointerException("Команда update принимает обязательный аргумент id (long).");
+                    }
                     break;
                 case "remove_key":
                     key = String.join(" ", Arrays.copyOfRange(command, 1, command.length));
                     city = cityHashtable.remove(key);
                     if (city != null)
-                        System.out.println("Из коллекции по ключу " + key + " удален " +
+                        quietPrintln("Из коллекции по ключу " + key + " удален " +
                                 city.getFullDescription());
                     else
-                        System.out.println("В коллекции нет соответствия для ключа " + key + ".");
+                        quietPrintln("В коллекции нет соответствия для ключа " + key + ".");
                     break;
                 case "clear":
                     cityHashtable.clear();
-                    System.out.println("Все города из коллекции удалены.");
+                    quietPrintln("Все города из коллекции удалены.");
                     break;
                 case "save":
                     if (filename == null) {
                         System.out.println("Не указано имя файла для записи.");
                         System.out.println("Воспользуйтесь командой save_as с указанием имени файла.");
+                        criticalException = new NullPointerException("Не указано имя файла для записи.");
                     } else
                         save();
                     break;
                 case "save_as":
                     if (command.length > 1)
                         save(String.join(" ", Arrays.copyOfRange(command, 1, command.length)));
-                    else
+                    else {
                         System.out.println("Команда save_as принимает обязательный аргумент file_name (String).");
+                        criticalException = new NullPointerException("Команда save_as принимает обязательный аргумент file_name (String).");
+                    }
                     break;
                 case "load":
-                    if (command.length > 1)
-                        load(String.join(" ", Arrays.copyOfRange(command, 1, command.length)));
-                    else
+                    if (command.length > 1) {
+                        String loadFilename = String.join(" ", Arrays.copyOfRange(command, 1, command.length));
+                        load(loadFilename);
+                        if (nonCriticalLoadExceptions > 0 && scriptExecution) {
+                            System.out.println("Загрузка коллекции из файла " +
+                                               loadFilename + " прошла с ошибками.");
+                            System.out.println("Количество ошибок: " + nonCriticalLoadExceptions);
+                            System.out.println("Продолжить выполнение скрипта?");
+                            if (!checkAnswer()) {
+                                quietScriptOut = true;
+                                return;
+                            }
+                        }
+                    }
+                    else {
                         System.out.println("Команда load принимает обязательный аргумент file_name (String).");
+                        criticalException = new NullPointerException("Команда load принимает обязательный аргумент file_name (String).");
+                    }
+                    break;
+                case "execute_script":
+                //execute_script file_name : считать и исполнить скрипт из указанного файла.
+                    // В скрипте содержатся команды в таком же виде, в котором их вводит пользователь в интерактивном режиме.
+                    if (command.length > 1) {
+                        String exeFilename = String.join(" ", Arrays.copyOfRange(command, 1, command.length));
+                        Scanner curScanner = sc;
+                        boolean curScriptExecution = scriptExecution;
+                        boolean curQuiet = quiet;
+                        try (Scanner exeFileSc = new Scanner(new File(exeFilename))) {
+                            sc = exeFileSc;
+                            scriptExecution = quiet = true;
+                            criticalException = null;
+                            quietScriptOut = false;
+                            work();
+                            quiet = curQuiet;
+                            scriptExecution = curScriptExecution;
+                            sc = curScanner;
+                            if (criticalException != null)
+                                System.out.println("Выполнение скрипта прервано.");
+                            else if (quietScriptOut)
+                                quietPrintln("Выполнение скрипта прервано пользователем.");
+                            else
+                                quietPrintln("Выполнение скрипта завершено.");
+                        } catch (FileNotFoundException fnfe) {
+                            System.out.print("Ошибка при открытии файла ");
+                            System.out.println(fnfe.getMessage());
+                            criticalException = fnfe;
+                        }
+                    } else {
+                        System.out.println("Команда execute_script принимает обязательный аргумент file_name (String).");
+                        criticalException = new NullPointerException("Команда execute_script принимает обязательный аргумент file_name (String).");
+                    }
                     break;
                 case "exit":
+                    if (scriptExecution)
+                        return;
                     System.exit(0);
                 //TODO: remove_greater {element} : удалить из коллекции все элементы, превышающие заданный
                 //TODO: remove_lower {element} : удалить из коллекции все элементы, меньшие, чем заданный
@@ -414,52 +583,13 @@ public class CityCollectionManager {
                 //TODO: sum_of_agglomeration : вывести сумму значений поля agglomeration для всех элементов коллекции
                 //TODO: max_by_standard_of_living : вывести любой объект из коллекции, значение поля standardOfLiving которого является максимальным
                 //TODO: filter_less_than_climate climate : вывести элементы, значение поля climate которых меньше заданного
-/*
-                case "remove":
-                    hp_queue.remove(HumanCreator.JSONToHuman(jr.readJSONRow()));
-                    break;
-                case "clear":
-                    hp_queue.clear();
-                    break;
-                case "info":
-                    System.out.println(hp_queue.getInfo());
-                    break;
-                case "show":
-                    for (Entities.Human human : hp_queue.toArray())
-                        System.out.println(HumanDescriptor.HumanToJSON(human));
-                    break;
-                case "add":
-                    hp_queue.add(HumanCreator.JSONToHuman(jr.readJSONRow()));
-                    break;
-                case "remove_greater":
-                    hp_queue.removeGreater(HumanCreator.JSONToHuman(jr.readJSONRow()));
-                    break;
-                case "import":
-                    boolean end_reached = false;
-                    String path = sc.nextLine();
-                    char[] path_arr = path.toCharArray();
-                    int begin = -1, end = -1;
-                    for (int i = 0; i < path.length() && !end_reached; i++) {
-                        if (path_arr[i] == '\"') {
-                            if (begin == -1) begin = i + 1;
-                            else {
-                                end = i;
-                                end_reached = true;
-                            }
-                        }
-                    }
-                    path = path.substring(begin, end);
-
-                    try {
-                        hp_queue.download(path);
-                    } catch (FileNotFoundException e) {
-                        System.out.println("Неверно указан путь к файлу.");
-                    }
-                    break;
-                case "exit":
-                    System.exit(0);
-            */
             }
+            if (criticalException != null && scriptExecution) {
+                System.out.println("Ошибка при выполнении команды: " +
+                                   String.join(" ", command));
+                return;
+            }
+            if (quietScriptOut && scriptExecution) return;
         }
     }
 
@@ -473,13 +603,16 @@ public class CityCollectionManager {
         Coordinates coord = new Coordinates(1, 2);
         City c1 = new City(1, "c1", coord, 1, 1, 1, 1, Climate.HUMIDCONTINENTAL, StandardOfLiving.MEDIUM, new Human(1), new java.util.Date());
         ccm.cityHashtable.add("c1", c1);
-        System.out.println(ccm.cityHashtable);
+        quietPrintln
+        (ccm.cityHashtable);
         c1.setGovernor(new Human(228));
-        System.out.println(ccm.cityHashtable.get("c1").getGovernor());
+        quietPrintln
+        (ccm.cityHashtable.get("c1").getGovernor());
 
 
         for (String key : ccm.cityHashtable.keySet())
-            System.out.println(key + ": " + ccm.cityHashtable.get(key));
+            quietPrintln
+           (key + ": " + ccm.cityHashtable.get(key));
             */
     }
 }
