@@ -8,6 +8,9 @@ import Entities.City.Parameters.StandardOfLiving;
 
 import java.util.Date;
 
+/**
+ * Class that represent cities
+ */
 public class City implements Comparable<City> {
     private final Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name; //Поле не может быть null, Строка не может быть пустой
@@ -21,6 +24,21 @@ public class City implements Comparable<City> {
     private Human governor; //Поле может быть null
     private final java.util.Date creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
 
+    /**
+     * Creates a new City with given parameters
+     * @param id - id of the City. Must be greater than 0
+     * @param name - name of the City. Can't be null or empty string
+     * @param coordinates - coordinates of the City. Can't be null
+     * @param area - area of the City. Must be greater than 0
+     * @param population - population of the City. Must be greater than 0
+     * @param metersAboveSeaLevel - height above sea level of the City
+     * @param agglomeration - agglomeration of the City
+     * @param climate - type of climate in the City. Can't be null
+     * @param standardOfLiving - living standard in the City. Can't be null
+     * @param governor - governor of the City
+     * @throws InvalidCityDataException if any parameter has an invalid value
+     * @throws NullPointerException if any parameter that can't be null is actually null
+     */
     public City(long id,
                 String name,
                 Entities.City.Parameters.Coordinates coordinates,
@@ -31,11 +49,27 @@ public class City implements Comparable<City> {
                 Entities.City.Parameters.Climate climate,
                 Entities.City.Parameters.StandardOfLiving standardOfLiving,
                 Entities.Human governor)
-            throws InvalidCityDataException {
+            throws InvalidCityDataException, NullPointerException {
         this(id, name, coordinates, area, population, metersAboveSeaLevel,
              agglomeration, climate, standardOfLiving, governor, new java.util.Date());
     }
 
+    /**
+     * Creates a new City with given parameters
+     * @param id - id of the City. Must be greater than 0
+     * @param name - name of the City. Can't be null or empty string
+     * @param coordinates - coordinates of the City. Can't be null
+     * @param area - area of the City. Must be greater than 0
+     * @param population - population of the City. Must be greater than 0
+     * @param metersAboveSeaLevel - height above sea level of the City
+     * @param agglomeration - agglomeration of the City
+     * @param climate - type of climate in the City. Can't be null
+     * @param standardOfLiving - living standard in the City. Can't be null
+     * @param governor - governor of the City
+     * @param creationDate - initialization date of this City. Can't be null
+     * @throws InvalidCityDataException if any parameter has an invalid value
+     * @throws NullPointerException if any parameter that can't be null is actually null
+     */
     public City(long id,
                 String name,
                 Coordinates coordinates,
@@ -67,6 +101,11 @@ public class City implements Comparable<City> {
             throw new NullPointerException("Поле City.creationDate не может иметь значение null.");
     }
 
+    /**
+     * Creates a copy of the specified City with new id.
+     * @param id - id for newly created City
+     * @param other - City to be copied
+     */
     public City(long id, City other) {
         if (id > 0)
             this.id = id;
@@ -84,8 +123,16 @@ public class City implements Comparable<City> {
         this.creationDate = (Date) other.creationDate.clone();
     }
 
+    /**
+     * Returns a string representation of this City
+     * @return A string representation of this City
+     */
     public String toString() { return name + " (id:" + id + ")"; }
 
+    /**
+     * Returns a detailed string representation of this City
+     * @return A detailed string representation of this City
+     */
     public String getFullDescription() {
         StringBuilder fullDescription = new StringBuilder();
         fullDescription.append(toString());
@@ -103,60 +150,132 @@ public class City implements Comparable<City> {
         return fullDescription.toString();
     }
 
+    /**
+     * Compares this City to the specified object. The result is true if and only
+     * if the argument is not null and is a City object that represents a city with the
+     * same size (population, area, agglomeration) as this object
+     * (population.equals(other.population) && area == other.area &&
+     * agglomeration.equals(other.agglomeration)).
+     * @param obj - The object to compare this City against
+     * @return true if the given object represents a City of equivalent size to this
+     * City, false otherwise
+     */
     public boolean equals(Object obj) {
-        //Criteria of equality: population, area, agglomeration and coordinates
+        //Criteria of equality: population, area, agglomeration
         if (obj instanceof City) {
             City other = (City) obj;
-            return coordinates.equals(other.coordinates) &&
-                   population.equals(other.population) &&
+            return population.equals(other.population) &&
                    area == other.area &&
                    agglomeration.equals(other.agglomeration);
         }
         return false;
     }
 
+    /**
+     * Returns a hash code for this City. The hash code for a City object is computed as
+     * Integer.hashCode(population.hashCode() + Float.hashCode(area) + agglomeration.hashCode())
+     * @return a hash code value for this object.
+     */
     public int hashCode() {
         int hashSum = population.hashCode() + Float.hashCode(area) +
-                      agglomeration.hashCode() + coordinates.hashCode();
+                      agglomeration.hashCode();
         return Integer.hashCode(hashSum);
     }
 
+    /**
+     * Compares this City to another. Cities are ordered first by population then by area
+     * and the by agglomeration. The result is a positive integer if this City object
+     * follows the argument City. The result is zero if the cities are equal; compareTo
+     * returns 0 exactly when the equals(Object) method would return true. The result is a
+     * negative integer if this City object precedes the argument City.
+     * @param other - the City to be compared.
+     * @return the value 0 if the argument City is equal to this City; a value less than 0
+     * if this City is less than the City argument; and a value greater than 0 if this
+     * City is greater than the City argument.
+     */
     public int compareTo(City other) {
-        //Comparison order: population -> area -> agglomeration -> coordinates
+        //Comparison order: population -> area -> agglomeration
         int result = population.compareTo(other.population);
         if (result == 0) {
             result = Float.compare(area, other.area);
-            if (result == 0) {
-                result = agglomeration.compareTo(other.agglomeration);
-                if (result == 0)
-                    return coordinates.compareTo(other.coordinates);
-            }
+            if (result == 0)
+                return agglomeration.compareTo(other.agglomeration);
         }
         return result;
     }
 
+    /**
+     * Returns id of this City
+     * @return id of this City
+     */
     public Long getId() { return id; }
 
+    /**
+     * Returns name of this City
+     * @return name of this City
+     */
     public String getName() { return name; }
 
+    /**
+     * Returns clone of coordinates of this City
+     * @return clone of coordinates of this City
+     */
     public Coordinates getCoordinates() { return coordinates.clone(); }
 
+    /**
+     * Returns area of this City
+     * @return area of this City
+     */
     public float getArea() { return area; }
 
+    /**
+     * Returns population of this City
+     * @return population of this City
+     */
     public Integer getPopulation() { return population; }
 
+    /**
+     * Returns height above sea level of this City
+     * @return height above sea level of this City
+     */
     public Float getMetersAboveSeaLevel() { return metersAboveSeaLevel; }
 
+    /**
+     * Returns agglomeration of this City
+     * @return agglomeration of this City
+     */
     public Integer getAgglomeration() { return agglomeration; }
 
+    /**
+     * Returns type of climate of this City
+     * @return type of climate of this City
+     */
     public Climate getClimate() { return climate; }
 
+    /**
+     * Returns living standard of this City
+     * @return living standard of this City
+     */
     public StandardOfLiving getStandardOfLiving() { return standardOfLiving; }
 
+    /**
+     * Returns clone of governor of this City
+     * @return clone of governor of this City
+     */
     public Human getGovernor() { return governor == null ? null : governor.clone(); }
 
+    /**
+     * Returns clone of initialization date of this City
+     * @return clone of initialization date of this City
+     */
     public Date getCreationDate() { return (Date) creationDate.clone(); }
 
+    /**
+     * Sets a new name of this City
+     * @param name - a new name
+     * @throws NullPointerException if name has null value
+     * @throws InvalidCityNameException if name is an empty string
+     */
     public void setName(String name) throws NullPointerException, InvalidCityNameException {
         if (name == null)
             throw new NullPointerException("Поле City.name не может иметь значение null.");
@@ -166,6 +285,11 @@ public class City implements Comparable<City> {
             throw new InvalidCityNameException();
     }
 
+    /**
+     * Sets new coordinates of this City
+     * @param coordinates - new coordinates
+     * @throws NullPointerException if coordinates is null
+     */
     public void setCoordinates(Coordinates coordinates) throws NullPointerException {
         if (coordinates != null)
             this.coordinates = coordinates;
@@ -173,6 +297,11 @@ public class City implements Comparable<City> {
             throw new NullPointerException("Поле City.coordinates не может иметь значение null.");
     }
 
+    /**
+     * Sets a new area of this City
+     * @param area - a new area
+     * @throws InvalidCityAreaException if area has value 0 or less
+     */
     public void setArea(float area) throws InvalidCityAreaException {
         if (area > 0)
             this.area = area;
@@ -180,6 +309,11 @@ public class City implements Comparable<City> {
             throw new InvalidCityAreaException();
     }
 
+    /**
+     * Sets a new population of this City
+     * @param population - a new population
+     * @throws InvalidCityPopulationException if area has value 0 or less
+     */
     public void setPopulation(int population) throws InvalidCityPopulationException {
         if (population > 0)
             this.population = population;
@@ -187,14 +321,27 @@ public class City implements Comparable<City> {
             throw new InvalidCityPopulationException();
     }
 
+    /**
+     * Sets a new height above sea level for this City
+     * @param metersAboveSeaLevel - a new height above sea level
+     */
     public void setMetersAboveSeaLevel(Float metersAboveSeaLevel) {
         this.metersAboveSeaLevel = metersAboveSeaLevel;
     }
 
+    /**
+     * Sets a new agglomeration for this City
+     * @param agglomeration - a new agglomeration
+     */
     public void setAgglomeration(Integer agglomeration) {
         this.agglomeration = agglomeration;
     }
 
+    /**
+     * Sets a new type of climate in this City
+     * @param climate - a new type of climate
+     * @throws NullPointerException if climate has null value
+     */
     public void setClimate(Climate climate) throws NullPointerException {
         if (climate != null)
             this.climate = climate;
@@ -202,6 +349,11 @@ public class City implements Comparable<City> {
             throw new NullPointerException("Поле City.climate не может иметь значение null.");
     }
 
+    /**
+     * Sets a new living standard in this City
+     * @param standardOfLiving - a new living standard
+     * @throws NullPointerException if standardOfLiving has null value
+     */
     public void setStandardOfLiving(StandardOfLiving standardOfLiving) throws NullPointerException {
         if (standardOfLiving != null)
             this.standardOfLiving = standardOfLiving;
@@ -209,48 +361,20 @@ public class City implements Comparable<City> {
             throw new NullPointerException("Поле City.standardOfLiving не может иметь значение null.");
     }
 
+    /**
+     * Sets a new governor for this City
+     * @param governor - a new governor
+     */
     public void setGovernor(Human governor) { this.governor = governor; }
 
+    /**
+     * Returns the default City for testing purposes
+     * @return the default City
+     */
     public static City getDefaultCity() {
         //TODO: remove getDefaultCity
         Coordinates coord = new Coordinates(1, 2);
         return new City(1, "c1", coord, 1, 1, (float) 1, 1, Climate.HUMIDCONTINENTAL, StandardOfLiving.MEDIUM, new Human(1), new java.util.Date());
 
-    }
-
-    public static void main(String[] args) throws InvalidCityDataException, InvalidHumanHeightException {
-        City c1 = null, c2 = null;
-        int a = 1;
-        Integer A = a;
-        Integer B = 1;
-        System.out.println(A == B);
-        Coordinates coord = new Coordinates(1, 2);
-        //System.out.println("nextId " + Entities.City.City.nextId);
-        Long id = new Long(1);
-        Long nullId = null;
-        c1 = new City(id, "c1", coord, 1, 1, (float) 1, 1, Climate.HUMIDCONTINENTAL, StandardOfLiving.MEDIUM, new Human(1), new java.util.Date());
-        System.out.println(c1.id);
-        //System.out.println(Entities.City.City.nextId);
-/*        try {
-            //c1 = new Entities.City.City("c1", coord, 1, null);
-            //c2 = new Entities.City.City("c2", null, 1, A);
-        } catch (NullPointerException npe) {
-            System.out.println("catch");
-        }
-*/        System.out.println(c1 + "\n" + c2);
-        System.out.println(c1.coordinates);
-        System.out.println(c1.creationDate);
-        c1.getCreationDate().setTime(1000);
-        System.out.println(c1.creationDate);
-        System.out.println(c1.getClimate());
-        Climate climate = c1.getClimate();
-        climate = Climate.STEPPE;
-        System.out.println(c1.getClimate());
-        c1.setClimate(null);
-        System.out.println(c1.getClimate());
-/*
-        Integer[] arr = new Integer[10];
-        ArrayList<Integer> arrlist = new ArrayList<Integer>(arr);
-*/
     }
 }

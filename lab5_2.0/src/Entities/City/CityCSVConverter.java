@@ -18,6 +18,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+/**
+ * CityCSVConverter is a class that provides serialization City objects to CSVRows and
+ * parsing them back.
+ */
 public class CityCSVConverter implements CSVToObj<City>, ObjToCSV<City> {
     private static final String[] CITY_CSV_FIELDS = {"id",
                                                      "name",

@@ -7,6 +7,9 @@ import java.text.ParseException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+/**
+ * A CSVReader is a class for reading CSVRows from Scanner or InputStream.
+ */
 public class CSVReader {
     private Scanner sc;
     private BufferedInputStream bufferedIS;
@@ -16,12 +19,28 @@ public class CSVReader {
     private static final String[] LINE_SEPARATORS = "\n\r\u2028\u2029\u0085".split("");
     private String lastLineSeparator;
 
+    /**
+     * Creates a CSVReader that uses the given InputStream
+     * @param is - InputStream to read from
+     */
     public CSVReader(InputStream is) { this(is, Charset.defaultCharset()); }
 
+    /**
+     * Creates a CSVReader that uses the given InputStream and the specified charset
+     * @param is - an InputStream to read from
+     * @param charsetName - a name of the Charset to use
+     * @throws UnsupportedCharsetException If no support for the named charset is
+     * available in this instance of the Java virtual machine
+     */
     public CSVReader(InputStream is, String charsetName) throws UnsupportedCharsetException {
         this(is, Charset.forName(charsetName));
     }
 
+    /**
+     * Creates a CSVReader that uses the given InputStream and the specified charset
+     * @param is - an InputStream to read from
+     * @param charset - a Charset to use
+     */
     public CSVReader(InputStream is, Charset charset) {
         this.bufferedIS = new BufferedInputStream(is);
         this.charset = charset;
@@ -31,8 +50,17 @@ public class CSVReader {
         lfBytes = "\n".getBytes(charset);
     }
 
+    /**
+     * Creates a CSVReader that uses the given Scanner
+     * @param sc - a Scanner to read from
+     */
     public CSVReader(Scanner sc) { this.sc = sc; }
 
+    /**
+     * Returns true if CSVReader has anything else to read. This method may block while
+     * waiting for input to scan if you use Scanner as a source.
+     * @return true if and only if this CSVReader has anything else to read
+     */
     public boolean hasNext() {
         if (sc != null)
             return sc.hasNext();
@@ -94,6 +122,11 @@ public class CSVReader {
         return result;
     }
 
+    /**
+     * Reads complete CSVRow from source.
+     * @return CSVRow that has been read
+     * @throws ParseException if any errors occurs
+     */
     public CSVRow readCSVRow() throws ParseException {
         StringBuilder str = new StringBuilder();
         try {
@@ -128,16 +161,5 @@ public class CSVReader {
             }
         }
         return new CSVRow(str.toString());
-    }
-
-    //TODO: remove
-    private static void stringTest(String s, Charset charset) {
-        int i = 0;
-        for (char c : s.toCharArray()) {
-            System.out.print(i++ + ": " + c + ": ");
-            for (byte b : String.valueOf(c).getBytes(charset))
-                System.out.print(Integer.toString(((int) b) & ((1 << 8) - 1), 2) + " ");
-            System.out.println();
-        }
     }
 }

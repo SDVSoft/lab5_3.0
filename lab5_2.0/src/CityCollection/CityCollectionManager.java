@@ -14,13 +14,14 @@ import Exceptions.ObjectCreationFailedException;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.rmi.AlreadyBoundException;
 import java.text.ParseException;
 import java.util.*;
-//TODO:Все классы в программе должны быть задокументированы в формате javadoc.
 //TODO:Программа должна корректно работать с неправильными данными (ошибки пользовательского ввода, отсутсвие прав доступа к файлу и т.п.).
 
-//TODO: Maybe Logger?
+/**
+ * CityCollectionManager is a class that provides the ability to interact with a
+ * collection of Cities interactively through the command line.
+ */
 public class CityCollectionManager {
     private CityBijectiveHashtable cityHashtable;
     private java.util.Date initDate;
@@ -35,8 +36,16 @@ public class CityCollectionManager {
     private Exception criticalException;
     private int nonCriticalLoadExceptions = 0;
 
+    /**
+     * Initializes a new CityCollectionManager that will be controlled via the "standard"
+     * input stream.
+     */
     public CityCollectionManager() { this(new Scanner(System.in)); }
 
+    /**
+     * Initializes a new CityCollectionManager with the specified Scanner
+     * @param sc - a Scanner to use.
+     */
     public CityCollectionManager(Scanner sc) {
         this.cityHashtable = new CityBijectiveHashtable();
         this.initDate = new java.util.Date();
@@ -47,7 +56,7 @@ public class CityCollectionManager {
     }
 
     /**
-     * Clears CityBimap and fills it with Cities from the file.
+     * Clears CityHashtable and fills it with Cities from the file.
      */
     protected int load(String filename) {
         int citiesLoaded = -1;
@@ -106,12 +115,21 @@ public class CityCollectionManager {
         return citiesLoaded;
     }
 
+    /**
+     * Saves current collection to the file that was previously specified in
+     * save(String filename) or in load(String filename)
+     * @throws NullPointerException if the file wasn't specified yet
+     */
     protected void save() throws NullPointerException {
         if (filename == null)
             throw new NullPointerException("Не указано имя файла для записи.");
         save(filename);
     }
 
+    /**
+     * Saves current collection to the specified file
+     * @param filename - the name of the file to store the collection
+     */
     protected void save(String filename) {
         int citiesSaved = 0;
         try (OutputStreamWriter outStreamWriter = new OutputStreamWriter(new FileOutputStream(filename), charset)){
@@ -151,10 +169,20 @@ public class CityCollectionManager {
         return String.join(", ", strEnumValuesArray);
     }
 
+    /**
+     * Creates a new City from given data
+     * @return City that was created
+     */
     protected City inputElement() {
         return inputElement(null);
     }
 
+    /**
+     * Sets new data to the specified City
+     * @param city - the City to update data for
+     * @return the specified City  with updated data or a new City with given data if the
+     * specified City object was null
+     */
     protected City inputElement(City city) {
         String curLine;
         String name = null;
@@ -391,20 +419,39 @@ public class CityCollectionManager {
         return city;
     }
 
+    /**
+     * Prints '\n' only if this.quiet != true
+     */
     protected void quietPrintln() { quietPrintln(""); }
 
+    /**
+     * Prints the specified string + '\n' only if this.quiet != true
+     * @param message - the string to print
+     */
     protected void quietPrintln(String message) {
         if (quiet)
             return;
         System.out.println(message);
     }
 
+    /**
+     * Prints the specified string only if this.quiet != true
+     * @param message - the string to print
+     */
     protected void quietPrint(String message) {
         if (quiet)
             return;
         System.out.print(message);
     }
 
+    /**
+     * Reads the users answer for some question. And returns true if the answer was "д",
+     * "да", "y" or "yes" and false false if the answer was "н", "нет", "n" or "no". If
+     * user types something else asks user to input one of this answers again. This method
+     * is not case sensitive.
+     * @return true if the answer was "д", "да", "y" or "yes" and false false if the
+     * answer was "н", "нет", "n" or "no"
+     */
     protected boolean checkAnswer() {
         String answer;
         while (true) {
@@ -425,10 +472,14 @@ public class CityCollectionManager {
         }
     }
 
+    /**
+     * Launches this CityCollectionManager and executes commands from the saved Scanner
+     */
     public void work() {
         String[] command;
         City city;
         String key;
+        int removed;
         while (sc.hasNext()) {
             command = sc.nextLine().split(" ");
             while (command.length < 1)
@@ -436,8 +487,7 @@ public class CityCollectionManager {
             command[0] = command[0].toLowerCase();
             switch (command[0]) {
                 case "help":
-                    try {
-                        Scanner cmdHelpSc = new Scanner(new File("./Command help.txt"));
+                    try (Scanner cmdHelpSc = new Scanner(new File("./Command help.txt"))) {
                         while (cmdHelpSc.hasNext()) {
                             System.out.println(cmdHelpSc.nextLine());
                         }
@@ -541,8 +591,6 @@ public class CityCollectionManager {
                     }
                     break;
                 case "execute_script":
-                //execute_script file_name : считать и исполнить скрипт из указанного файла.
-                    // В скрипте содержатся команды в таком же виде, в котором их вводит пользователь в интерактивном режиме.
                     if (command.length > 1) {
                         String exeFilename = String.join(" ", Arrays.copyOfRange(command, 1, command.length));
                         Scanner curScanner = sc;
@@ -577,12 +625,87 @@ public class CityCollectionManager {
                     if (scriptExecution)
                         return;
                     System.exit(0);
-                //TODO: remove_greater {element} : удалить из коллекции все элементы, превышающие заданный
-                //TODO: remove_lower {element} : удалить из коллекции все элементы, меньшие, чем заданный
-                //TODO: replace_if_greater null {element} : заменить значение по ключу, если новое значение больше старого
-                //TODO: sum_of_agglomeration : вывести сумму значений поля agglomeration для всех элементов коллекции
-                //TODO: max_by_standard_of_living : вывести любой объект из коллекции, значение поля standardOfLiving которого является максимальным
-                //TODO: filter_less_than_climate climate : вывести элементы, значение поля climate которых меньше заданного
+                case "remove_greater":
+                    city = inputElement();
+                    removed = 0;
+                    for (City collectionCity : cityHashtable.values()) {
+                        if (city.compareTo(collectionCity) < 0) {
+                            cityHashtable.removeValue(collectionCity);
+                            removed++;
+                        }
+                    }
+                    quietPrintln("Удалено городов: " + removed);
+                    break;
+                case "remove_lower":
+                    city = inputElement();
+                    removed = 0;
+                    for (City collectionCity : cityHashtable.values()) {
+                        if (city.compareTo(collectionCity) > 0) {
+                            cityHashtable.removeValue(collectionCity);
+                            removed++;
+                        }
+                    }
+                    quietPrintln("Удалено городов: " + removed);
+                    break;
+                case "replace_if_greater":
+                    key = String.join(" ", Arrays.copyOfRange(command, 1, command.length));
+                    city = inputElement();
+                    City cityToBeReplaced = cityHashtable.get(key);
+                    if (city.compareTo(cityToBeReplaced) > 0) {
+                        cityHashtable.putWithUniqId(key, city);
+                        quietPrintln("В коллекции заменен город по ключу " + key + ".");
+                        quietPrintln("Новое значение: " +
+                                     cityHashtable.get(key).getFullDescription());
+                    }
+                    break;
+                case "sum_of_agglomeration":
+                    int aggSum = 0;
+                    Integer agglomeration;
+                    for (City collectionCity : cityHashtable.values()) {
+                        agglomeration = collectionCity.getAgglomeration();
+                        if (agglomeration != null) aggSum += agglomeration;
+                    }
+                    System.out.println("Сумма значений agglomeration всех городов " +
+                            "коллекции: " + aggSum);
+                    break;
+                case "max_by_standard_of_living":
+                    if (cityHashtable.size() == 0)
+                        System.out.println("В коллекции нет городов.");
+                    else {
+                        StandardOfLiving maxStandard = null;
+                        StandardOfLiving standard;
+                        city = null;
+                        for (City collectionCity : cityHashtable.values()) {
+                            standard = collectionCity.getStandardOfLiving();
+                            if (maxStandard == null || maxStandard.compareTo(standard) < 0) {
+                                city = collectionCity;
+                                maxStandard = standard;
+                            }
+                        }
+                        try {
+                            System.out.println(city.getFullDescription());
+                        } catch (NullPointerException ignore) {}
+                    }
+                    break;
+                case "filter_less_than_climate":
+                    if (command.length > 1) {
+                        try {
+                            Climate climate = Climate.valueOf(command[1].toUpperCase());
+                            for (City collectionCity : cityHashtable.values()) {
+                                if (collectionCity.getClimate().compareTo(climate) < 0)
+                                    System.out.println(collectionCity.getFullDescription());
+                            }
+                        } catch (IllegalArgumentException iae) {
+                            String msg = "Не удалось определить тип климата.\n" + iae.getMessage();
+                            System.out.println(msg);
+                            quietPrintln("Доступные варианты: " + ObjectsToStr(Climate.values()));
+                            criticalException = new NullPointerException(msg);
+                        }
+                    } else {
+                        System.out.println("Команда filter_less_than_climate принимает обязательный аргумент climate (String).");
+                        criticalException = new NullPointerException("Команда filter_less_than_climate принимает обязательный аргумент climate (String).");
+                    }
+                    break;
             }
             if (criticalException != null && scriptExecution) {
                 System.out.println("Ошибка при выполнении команды: " +
@@ -593,26 +716,22 @@ public class CityCollectionManager {
         }
     }
 
-    public static void main(String[] args) throws AlreadyBoundException, FileNotFoundException, ParseException {
+    /**
+     * The main method for starting the application
+     * @param args - command line parameters
+     */
+    public static void main(String[] args) {
         CityCollectionManager ccm = new CityCollectionManager();
-        if (args.length > 0 && ccm.load(args[0]) < 0)
-            System.out.println("Воспользуйтесь командой load, чтобы загрузить коллекцию.");
+        if (args.length > 0) {
+            if (args[0].equals("-filename")) {
+                if (args.length > 1 && ccm.load(args[1]) < 0)
+                    System.out.println("Воспользуйтесь командой load, чтобы загрузить коллекцию.");
+            } else {
+                String path = System.getenv(args[0]);
+                System.out.println(path);
+                ccm.load(path);
+            }
+        }
         ccm.work();
-        /*
-        String key0 = ccm.cityHashtable.keys().nextElement();
-        Coordinates coord = new Coordinates(1, 2);
-        City c1 = new City(1, "c1", coord, 1, 1, 1, 1, Climate.HUMIDCONTINENTAL, StandardOfLiving.MEDIUM, new Human(1), new java.util.Date());
-        ccm.cityHashtable.add("c1", c1);
-        quietPrintln
-        (ccm.cityHashtable);
-        c1.setGovernor(new Human(228));
-        quietPrintln
-        (ccm.cityHashtable.get("c1").getGovernor());
-
-
-        for (String key : ccm.cityHashtable.keySet())
-            quietPrintln
-           (key + ": " + ccm.cityHashtable.get(key));
-            */
     }
 }

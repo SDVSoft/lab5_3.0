@@ -6,12 +6,19 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+/**
+ * The CSVRow class represents an object parsed from CSV/
+ */
 public class CSVRow {
     private String csvRow;
     private String[] values;
     private int size;
     private static final char DELIMITER = ',';
 
+    /**
+     * Creates a new CSVRow from given values
+     * @param values - array of values
+     */
     public CSVRow(String[] values) {
         this.values = Arrays.copyOf(values, values.length);
         size = values.length;
@@ -26,6 +33,10 @@ public class CSVRow {
         csvRow = str.toString();
     }
 
+    /**
+     * Parse given String into a new CSVRow
+     * @param csvRow - complete CSV line
+     */
     public CSVRow(String csvRow) throws InvalidQuoteSequenceException {
         //Added: Exception when incorrectly placed quotes
         this.csvRow = csvRow;
@@ -64,14 +75,30 @@ public class CSVRow {
         values = valuesQueue.toArray(new String[0]);
     }
 
+    /**
+     * Returns delimiter using to separate values. (',')
+     * @return delimiter
+     */
     public static char delimiter() { return DELIMITER; }
 
+    /**
+     * Returns an amount of values in this row
+     * @return amount of values
+     */
     public int size() { return size; }
 
+    /**
+     * Returns an array representation of this CSVRow
+     * @return array of values
+     */
     public String[] getValues() { return Arrays.copyOf(values, size); }
 
+    /**
+     * Returns CSV representation of this CSVRow
+     * @return String in CSV format
+     */
     public String toString() { return csvRow; }
-
+/*
     public static void main(String[] args) throws ParseException {
         CSVReader csvReader = new CSVReader(System.in);
         CSVRow csvRow = csvReader.readCSVRow();
@@ -81,5 +108,5 @@ public class CSVRow {
             System.out.println();
             csvRow = csvReader.readCSVRow();
         }
-     }
+    }*/
 }
