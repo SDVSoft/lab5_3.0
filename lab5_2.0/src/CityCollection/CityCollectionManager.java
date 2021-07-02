@@ -61,51 +61,58 @@ public class CityCollectionManager {
     protected int load(String filename) {
         int citiesLoaded = -1;
         nonCriticalLoadExceptions = 0;
-        try(FileInputStream fis = new FileInputStream(filename)) {
-            this.filename = filename;
-            cityHashtable.clear();
-            City curCity;
-            long curCityId = 0;
-            CSVReader csvReader = new CSVReader(fis, charset);
-            CSVRow csvRow, cityCSVRow;
-            citiesLoaded = 0;
-            while (csvReader.hasNext()) {
-                csvRow = csvReader.readCSVRow();
-                cityCSVRow = new CSVRow(Arrays.copyOfRange(csvRow.getValues(), 1, csvRow.size()));
-                try {
-                    curCity = cityCSVConverter.createFromCSV(cityCSVRow);
-                    curCityId = curCity.getId();
-                    cityHashtable.put(csvRow.getValues()[0], curCity);
-                    citiesLoaded++;
-                } catch (ObjectCreationFailedException ocfe) {
-                    nonCriticalLoadExceptions++;
-                    System.out.println("Не удалось создать город с ключом " +
-                            csvRow.getValues()[0]);
-                    System.out.println(ocfe.getMessage());
-                    if (ocfe.getCause() != null)
-                        System.out.println("Cause: " + ocfe.getCause().getMessage());
-                    System.out.println();
-                } catch (IllegalArgumentException iae) {
-                    nonCriticalLoadExceptions++;
-                    System.out.println("Не удалось добавить в коллекцию город с ключом " +
-                            csvRow.getValues()[0] + " (id:" + curCityId + "):");
-                    System.out.println(iae.getMessage());
-                    System.out.println();
+        File loadFile = new File(filename);
+        if (!loadFile.isFile()) {
+            criticalException = new IOException(filename +
+                    " is not a normal file. Loading is forbidden.");
+            System.out.println(criticalException.getMessage());
+        } else {
+            try (FileInputStream fis = new FileInputStream(loadFile)) {
+                this.filename = filename;
+                cityHashtable.clear();
+                City curCity;
+                long curCityId = 0;
+                CSVReader csvReader = new CSVReader(fis, charset);
+                CSVRow csvRow, cityCSVRow;
+                citiesLoaded = 0;
+                while (csvReader.hasNext()) {
+                    csvRow = csvReader.readCSVRow();
+                    cityCSVRow = new CSVRow(Arrays.copyOfRange(csvRow.getValues(), 1, csvRow.size()));
+                    try {
+                        curCity = cityCSVConverter.createFromCSV(cityCSVRow);
+                        curCityId = curCity.getId();
+                        cityHashtable.put(csvRow.getValues()[0], curCity);
+                        citiesLoaded++;
+                    } catch (ObjectCreationFailedException ocfe) {
+                        nonCriticalLoadExceptions++;
+                        System.out.println("Не удалось создать город с ключом " +
+                                csvRow.getValues()[0]);
+                        System.out.println(ocfe.getMessage());
+                        if (ocfe.getCause() != null)
+                            System.out.println("Cause: " + ocfe.getCause().getMessage());
+                        System.out.println();
+                    } catch (IllegalArgumentException iae) {
+                        nonCriticalLoadExceptions++;
+                        System.out.println("Не удалось добавить в коллекцию город с ключом " +
+                                csvRow.getValues()[0] + " (id:" + curCityId + "):");
+                        System.out.println(iae.getMessage());
+                        System.out.println();
+                    }
                 }
+            } catch (ParseException pe) {
+                System.out.println("Не удаётся прочитать файл в формате CSV.");
+                System.out.println(pe.getMessage());
+                criticalException = pe;
+            } catch (FileNotFoundException fnfe) {
+                System.out.print("Ошибка при открытии файла ");
+                System.out.println(fnfe.getMessage());
+                criticalException = fnfe;
+            } catch (IOException ioe) {
+                System.out.println("При чтении указанного файла возникла " +
+                        "непредвиденная ошибка.");
+                System.out.println(ioe.getMessage());
+                criticalException = ioe;
             }
-        } catch (ParseException pe) {
-            System.out.println("Не удаётся прочитать файл в формате CSV.");
-            System.out.println(pe.getMessage());
-            criticalException = pe;
-        } catch (FileNotFoundException fnfe) {
-            System.out.print("Ошибка при открытии файла ");
-            System.out.println(fnfe.getMessage());
-            criticalException = fnfe;
-        } catch (IOException ioe) {
-            System.out.println("При чтении указанного файла возникла " +
-                    "непредвиденная ошибка.");
-            System.out.println(ioe.getMessage());
-            criticalException = ioe;
         }
         String resultMsg = "Загружено городов: " + citiesLoaded + ".";
         if (nonCriticalLoadExceptions > 0)
@@ -593,28 +600,35 @@ public class CityCollectionManager {
                 case "execute_script":
                     if (command.length > 1) {
                         String exeFilename = String.join(" ", Arrays.copyOfRange(command, 1, command.length));
-                        Scanner curScanner = sc;
-                        boolean curScriptExecution = scriptExecution;
-                        boolean curQuiet = quiet;
-                        try (Scanner exeFileSc = new Scanner(new File(exeFilename))) {
-                            sc = exeFileSc;
-                            scriptExecution = quiet = true;
-                            criticalException = null;
-                            quietScriptOut = false;
-                            work();
-                            quiet = curQuiet;
-                            scriptExecution = curScriptExecution;
-                            sc = curScanner;
-                            if (criticalException != null)
-                                System.out.println("Выполнение скрипта прервано.");
-                            else if (quietScriptOut)
-                                quietPrintln("Выполнение скрипта прервано пользователем.");
-                            else
-                                quietPrintln("Выполнение скрипта завершено.");
-                        } catch (FileNotFoundException fnfe) {
-                            System.out.print("Ошибка при открытии файла ");
-                            System.out.println(fnfe.getMessage());
-                            criticalException = fnfe;
+                        File exeFile = new File(exeFilename);
+                        if (!exeFile.isFile()) {
+                            criticalException = new IOException(exeFilename +
+                                    " is not a normal file. Execution is forbidden.");
+                            System.out.println(criticalException.getMessage());
+                        } else {
+                            Scanner curScanner = sc;
+                            boolean curScriptExecution = scriptExecution;
+                            boolean curQuiet = quiet;
+                            try (Scanner exeFileSc = new Scanner(exeFile)) {
+                                sc = exeFileSc;
+                                scriptExecution = quiet = true;
+                                criticalException = null;
+                                quietScriptOut = false;
+                                work();
+                                quiet = curQuiet;
+                                scriptExecution = curScriptExecution;
+                                sc = curScanner;
+                                if (criticalException != null)
+                                    System.out.println("Выполнение скрипта прервано.");
+                                else if (quietScriptOut)
+                                    quietPrintln("Выполнение скрипта прервано пользователем.");
+                                else
+                                    quietPrintln("Выполнение скрипта завершено.");
+                            } catch (FileNotFoundException fnfe) {
+                                System.out.print("Ошибка при открытии файла ");
+                                System.out.println(fnfe.getMessage());
+                                criticalException = fnfe;
+                            }
                         }
                     } else {
                         System.out.println("Команда execute_script принимает обязательный аргумент file_name (String).");
@@ -684,7 +698,7 @@ public class CityCollectionManager {
                         }
                         try {
                             System.out.println(city.getFullDescription());
-                        } catch (NullPointerException ignore) {}
+                        } catch (NullPointerException ignore) {} //cityHashtable.size != 0
                     }
                     break;
                 case "filter_less_than_climate":
@@ -723,14 +737,16 @@ public class CityCollectionManager {
     public static void main(String[] args) {
         CityCollectionManager ccm = new CityCollectionManager();
         if (args.length > 0) {
+            String path = "";
             if (args[0].equals("-filename")) {
-                if (args.length > 1 && ccm.load(args[1]) < 0)
-                    System.out.println("Воспользуйтесь командой load, чтобы загрузить коллекцию.");
+                if (args.length > 1)
+                    path = args[1];
             } else {
-                String path = System.getenv(args[0]);
-                System.out.println(path);
-                ccm.load(path);
+                path = System.getenv(args[0]);
             }
+            System.out.println(path);
+            if (ccm.load(path) < 0)
+                System.out.println("Воспользуйтесь командой load, чтобы загрузить коллекцию.");
         }
         ccm.work();
     }
